@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
       { src: 'assets/RoseAngle3.png', alt: 'GTG Perfume - Rose angle 3' },
     ],
   };
+  const fragranceBottleImages = {
+    original: { src: 'assets/original.png', alt: 'Original bottle' },
+    lily: { src: 'assets/Lily.png', alt: 'Lily bottle' },
+    rose: { src: 'assets/Rose.png', alt: 'Rose bottle' },
+  };
   const hamburger = document.getElementById('hamburger');
   const mobileNav = document.getElementById('mobileNav');
   const galleryImages = Array.from(document.querySelectorAll('.gallery-main .gallery-img'));
@@ -134,6 +139,25 @@ document.addEventListener('DOMContentLoaded', () => {
     startAutoSlide();
   }
 
+  function updateIncludedImages() {
+    const singleSelectedFragrance = document.querySelector('.sub-card[data-sub="single"] .frag-option.selected')?.dataset.fragrance || 'original';
+    const doubleSelectedFragrance = document.querySelector('.sub-card[data-sub="double"] .fragrance-options[data-fragrance-set="double-one"] .frag-option.selected')?.dataset.fragrance || 'original';
+    const singleIncludedImage = document.querySelector('.single-monthly-included-img');
+    const doubleIncludedImage = document.querySelector('.double-monthly-included-img');
+    const singleImageData = fragranceBottleImages[singleSelectedFragrance] || fragranceBottleImages.original;
+    const doubleImageData = fragranceBottleImages[doubleSelectedFragrance] || fragranceBottleImages.original;
+
+    if (singleIncludedImage) {
+      singleIncludedImage.src = singleImageData.src;
+      singleIncludedImage.alt = singleImageData.alt;
+    }
+
+    if (doubleIncludedImage) {
+      doubleIncludedImage.src = doubleImageData.src;
+      doubleIncludedImage.alt = doubleImageData.alt;
+    }
+  }
+
   function startAutoSlide() {
     if (!galleryImages.length) {
       return;
@@ -187,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
   galleryMain?.addEventListener('mouseleave', startAutoSlide);
 
   updateGalleryForFragrance('original');
+  updateIncludedImages();
 
   function getSelectedCard() {
     return document.querySelector('.sub-card.selected') || subCards[0] || null;
@@ -305,6 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       updateGalleryForFragrance(option.dataset.fragrance || 'original');
+      updateIncludedImages();
       updateCartLink();
     });
   });

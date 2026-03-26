@@ -670,7 +670,7 @@ input { font-family: var(--font-main); }
   font-size: clamp(40px, 5vw, 64px);
   font-weight: 700;
   color: var(--white);
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   line-height: 1;
   margin-bottom: 12px;
 }
@@ -708,7 +708,7 @@ input { font-family: var(--font-main); }
   border-radius: 2px;
 }
 .comparison-title {
-  font-family: var(--font-display);
+  font-family: var(--font-main);
   font-size: clamp(28px, 3.5vw, 44px);
   font-weight: 700;
   color: var(--green-dark);
