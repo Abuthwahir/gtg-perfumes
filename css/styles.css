@@ -654,31 +654,31 @@ input { font-family: var(--font-main); }
    STATS / PERCENTAGE SECTION
    ============================= */
 .stats-section {
-  background: linear-gradient(135deg, #0d2e1a 0%, #1a4d2e 50%, #0d2e1a 100%);
-  padding: 80px 40px;
+  background: linear-gradient(90deg, #032e15 0%, #0b6a33 100%);
+  padding: 44px 40px 42px;
 }
 .stats-inner {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 40px;
+  gap: 28px;
   text-align: center;
 }
 .stat-item {}
 .stat-number {
-  font-size: clamp(40px, 5vw, 64px);
-  font-weight: 700;
+  font-size: clamp(34px, 4vw, 44px);
+  font-weight: 600;
   color: var(--white);
   font-family: var(--font-main);
   line-height: 1;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .stat-suffix { font-size: 0.8em; }
 .stat-desc {
-  font-size: 14px;
+  font-size: 12px;
   color: rgba(255,255,255,0.7);
-  line-height: 1.5;
+  line-height: 1.35;
 }
 
 /* =============================
@@ -686,7 +686,7 @@ input { font-family: var(--font-main); }
    ============================= */
 .comparison-section {
   background: var(--white);
-  padding: 80px 40px;
+  padding: 44px 40px 56px;
 }
 .comparison-inner {
   max-width: 1000px;
@@ -700,7 +700,7 @@ input { font-family: var(--font-main); }
   display: flex;
   justify-content: center;
   gap: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .eyebrow-dash span {
   width: 28px; height: 3px;
@@ -709,11 +709,12 @@ input { font-family: var(--font-main); }
 }
 .comparison-title {
   font-family: var(--font-main);
-  font-size: clamp(28px, 3.5vw, 44px);
-  font-weight: 700;
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--green-dark);
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 36px;
 }
 .comparison-table-wrap {
   overflow-x: auto;
@@ -915,9 +916,9 @@ input { font-family: var(--font-main); }
   .hero-bg { background-position: 68% center; }
   .hero-title { font-size: 38px; }
 
-  .stats-section { padding: 60px 24px; }
+  .stats-section { padding: 40px 24px; }
   .stats-inner { grid-template-columns: repeat(2, 1fr); gap: 24px; }
-  .stat-number { font-size: 44px; }
+  .stat-number { font-size: 38px; }
 
   .fragrance-options { grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .frag-img { width: 40px; height: 48px; }
@@ -935,4 +936,5 @@ input { font-family: var(--font-main); }
   .collection-inner { padding: 0 16px; }
   .collection-section { padding: 60px 0; }
   .collection-title { margin-left: 16px; }
+  .comparison-section { padding: 40px 20px 48px; }
 }
