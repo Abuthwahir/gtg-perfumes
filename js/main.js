@@ -1,0 +1,395 @@
+/* =============================
+   GTG Perfumes - Main JavaScript
+   ============================= */
+
+document.addEventListener('DOMContentLoaded', () => {
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  const galleryImages = Array.from(document.querySelectorAll('.gallery-main .gallery-img'));
+  const galleryDots = Array.from(document.querySelectorAll('.gallery-dot'));
+  const galleryThumbs = Array.from(document.querySelectorAll('.gallery-thumb'));
+  const galleryMain = document.querySelector('.gallery-main');
+  const prevArrow = document.querySelector('.gallery-arrow.prev');
+  const nextArrow = document.querySelector('.gallery-arrow.next');
+  const subCards = Array.from(document.querySelectorAll('.sub-card'));
+  const fragranceOptions = Array.from(document.querySelectorAll('.frag-option'));
+  const purchaseOptions = Array.from(document.querySelectorAll('.purchase-option'));
+  const accordionItems = Array.from(document.querySelectorAll('.accordion-item'));
+  const statsSection = document.querySelector('.stats-section');
+  const fadeElements = Array.from(document.querySelectorAll('.fade-in-up'));
+  const lazyImages = Array.from(document.querySelectorAll('img[data-src]'));
+
+  let currentImageIndex = 0;
+  let currentThumbIndex = 0;
+  let autoSlideId = null;
+  let hasCountedStats = false;
+
+  function setMobileNavState(isOpen) {
+    if (!hamburger || !mobileNav) {
+      return;
+    }
+
+    hamburger.classList.toggle('active', isOpen);
+    mobileNav.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+    mobileNav.setAttribute('aria-hidden', String(!isOpen));
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  hamburger?.addEventListener('click', () => {
+    setMobileNavState(!mobileNav?.classList.contains('open'));
+  });
+
+  mobileNav?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setMobileNavState(false));
+  });
+
+  setMobileNavState(false);
+
+  function showImage(index) {
+    if (!galleryImages.length) {
+      return;
+    }
+
+    currentImageIndex = (index + galleryImages.length) % galleryImages.length;
+
+    const activeThumb = galleryThumbs[currentThumbIndex];
+    const activeThumbSlideIndex = activeThumb ? getThumbSlideIndex(activeThumb, currentThumbIndex) : -1;
+
+    if (activeThumbSlideIndex !== currentImageIndex) {
+      const matchingThumbIndex = galleryThumbs.findIndex((thumb, thumbIndex) => {
+        return getThumbSlideIndex(thumb, thumbIndex) === currentImageIndex;
+      });
+
+      currentThumbIndex = matchingThumbIndex >= 0 ? matchingThumbIndex : 0;
+    }
+
+    galleryImages.forEach((image, imageIndex) => {
+      const isActive = imageIndex === currentImageIndex;
+      image.classList.toggle('active', isActive);
+      image.setAttribute('aria-hidden', String(!isActive));
+    });
+
+    galleryDots.forEach((dot, dotIndex) => {
+      const isActive = dotIndex === currentImageIndex;
+      dot.classList.toggle('active', isActive);
+      dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+
+    galleryThumbs.forEach((thumb, thumbIndex) => {
+      thumb.classList.toggle('active', thumbIndex === currentThumbIndex);
+    });
+  }
+
+  function getThumbSlideIndex(thumb, fallbackIndex) {
+    const datasetIndex = Number.parseInt(thumb.dataset.slideIndex || '', 10);
+    return Number.isNaN(datasetIndex) ? fallbackIndex : datasetIndex;
+  }
+
+  function startAutoSlide() {
+    if (!galleryImages.length) {
+      return;
+    }
+
+    clearInterval(autoSlideId);
+    autoSlideId = window.setInterval(() => showImage(currentImageIndex + 1), 4000);
+  }
+
+  function stopAutoSlide() {
+    clearInterval(autoSlideId);
+    autoSlideId = null;
+  }
+
+  prevArrow?.addEventListener('click', () => showImage(currentImageIndex - 1));
+  nextArrow?.addEventListener('click', () => showImage(currentImageIndex + 1));
+
+  galleryDots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      const matchingThumbIndex = galleryThumbs.findIndex((thumb, thumbIndex) => {
+        return getThumbSlideIndex(thumb, thumbIndex) === index;
+      });
+
+      if (matchingThumbIndex >= 0) {
+        currentThumbIndex = matchingThumbIndex;
+      }
+
+      showImage(index);
+    });
+  });
+
+  galleryThumbs.forEach((thumb, index) => {
+    thumb.setAttribute('role', 'button');
+    thumb.setAttribute('tabindex', '0');
+    thumb.setAttribute('aria-label', `Show product image ${index + 1}`);
+
+    thumb.addEventListener('click', () => {
+      currentThumbIndex = index;
+      showImage(getThumbSlideIndex(thumb, index));
+    });
+    thumb.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        currentThumbIndex = index;
+        showImage(getThumbSlideIndex(thumb, index));
+      }
+    });
+  });
+
+  galleryMain?.addEventListener('mouseenter', stopAutoSlide);
+  galleryMain?.addEventListener('mouseleave', startAutoSlide);
+
+  showImage(0);
+  startAutoSlide();
+
+  function getSelectedCard() {
+    return document.querySelector('.sub-card.selected') || subCards[0] || null;
+  }
+
+  function setSelectedCard(nextCard) {
+    subCards.forEach((card) => {
+      const isSelected = card === nextCard;
+      card.classList.toggle('selected', isSelected);
+
+      const body = card.querySelector('.sub-card-body');
+      if (body) {
+        body.setAttribute('aria-hidden', String(!isSelected));
+      }
+    });
+  }
+
+  function getSelectedSubscription() {
+    return getSelectedCard()?.dataset.sub || 'single';
+  }
+
+  function getSelectedFragrances() {
+    const selectedCard = getSelectedCard();
+    if (!selectedCard) {
+      return ['original'];
+    }
+
+    const fragranceGroups = Array.from(selectedCard.querySelectorAll('.fragrance-options'));
+    if (!fragranceGroups.length) {
+      return ['original'];
+    }
+
+    return fragranceGroups.map((group) => {
+      return group.querySelector('.frag-option.selected')?.dataset.fragrance || 'original';
+    });
+  }
+
+  function getSelectedPurchase() {
+    return getSelectedCard()?.querySelector('.purchase-option.selected')?.dataset.purchase || 'subscribe';
+  }
+
+  function formatLabel(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function updateCartLink() {
+    const subscription = getSelectedSubscription();
+    const fragrances = getSelectedFragrances();
+    const purchase = getSelectedPurchase();
+    const cartButton = document.getElementById('addToCartBtn');
+    const cartInfo = document.getElementById('cartInfo');
+
+    if (subscription === 'double' && fragrances.length > 1) {
+      const [fragranceOne, fragranceTwo] = fragrances;
+
+      if (cartButton) {
+        cartButton.href = `#cart-double-${fragranceOne}-${fragranceTwo}`;
+        cartButton.dataset.subscription = subscription;
+        cartButton.dataset.variant = `${fragranceOne}-${fragranceTwo}`;
+        cartButton.title = `Add to cart: ${formatLabel(subscription)} | ${formatLabel(fragranceOne)} + ${formatLabel(fragranceTwo)}`;
+      }
+
+      if (cartInfo) {
+        cartInfo.textContent = `${formatLabel(subscription)} | ${formatLabel(fragranceOne)} + ${formatLabel(fragranceTwo)}`;
+      }
+
+      return;
+    }
+
+    const fragrance = fragrances[0] || 'original';
+    const variant = `${fragrance}-${purchase}`;
+
+    if (cartButton) {
+      cartButton.href = `#cart-${variant}`;
+      cartButton.dataset.subscription = subscription;
+      cartButton.dataset.variant = variant;
+      cartButton.title = `Add to cart: ${formatLabel(subscription)} | ${formatLabel(fragrance)} | ${formatLabel(purchase)}`;
+    }
+
+    if (cartInfo) {
+      cartInfo.textContent = `${formatLabel(subscription)} | ${formatLabel(fragrance)} | ${formatLabel(purchase)}`;
+    }
+  }
+
+  subCards.forEach((card) => {
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('.frag-option, .purchase-option')) {
+        return;
+      }
+
+      setSelectedCard(card);
+      updateCartLink();
+    });
+  });
+
+  fragranceOptions.forEach((option) => {
+    option.addEventListener('click', (event) => {
+      event.stopPropagation();
+
+      const group = option.closest('.fragrance-options');
+      if (!group) {
+        return;
+      }
+
+      group.querySelectorAll('.frag-option').forEach((item) => item.classList.remove('selected'));
+      option.classList.add('selected');
+
+      const radio = option.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+      }
+
+      const parentCard = option.closest('.sub-card');
+      if (parentCard) {
+        setSelectedCard(parentCard);
+      }
+
+      updateCartLink();
+    });
+  });
+
+  purchaseOptions.forEach((option) => {
+    option.addEventListener('click', (event) => {
+      event.stopPropagation();
+
+      const group = option.closest('.purchase-options');
+      if (!group) {
+        return;
+      }
+
+      group.querySelectorAll('.purchase-option').forEach((item) => item.classList.remove('selected'));
+      option.classList.add('selected');
+
+      const radio = option.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+      }
+
+      const parentCard = option.closest('.sub-card');
+      if (parentCard) {
+        setSelectedCard(parentCard);
+      }
+
+      updateCartLink();
+    });
+  });
+
+  setSelectedCard(getSelectedCard());
+  updateCartLink();
+
+  function setAccordionState(openItem) {
+    accordionItems.forEach((item) => {
+      const isOpen = item === openItem;
+      const trigger = item.querySelector('.accordion-trigger');
+      const icon = item.querySelector('.accordion-icon');
+
+      item.classList.toggle('open', isOpen);
+      trigger?.setAttribute('aria-expanded', String(isOpen));
+
+      if (icon) {
+        icon.textContent = isOpen ? '-' : '+';
+      }
+    });
+  }
+
+  accordionItems.forEach((item) => {
+    const trigger = item.querySelector('.accordion-trigger');
+    trigger?.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      setAccordionState(isOpen ? null : item);
+    });
+  });
+
+  setAccordionState(document.querySelector('.accordion-item.open') || accordionItems[0] || null);
+
+  function countUp(element, target, suffix = '', duration = 2000) {
+    const startTime = performance.now();
+
+    function update(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const currentValue = Math.floor(easedProgress * target);
+
+      element.textContent = `${currentValue}${suffix}`;
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        element.textContent = `${target}${suffix}`;
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  if ('IntersectionObserver' in window && statsSection) {
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || hasCountedStats) {
+          return;
+        }
+
+        hasCountedStats = true;
+
+        document.querySelectorAll('.stat-number[data-target]').forEach((element) => {
+          const target = Number.parseInt(element.dataset.target || '0', 10);
+          const suffix = element.dataset.suffix || '';
+          countUp(element, target, suffix);
+        });
+      });
+    }, { threshold: 0.3 });
+
+    statsObserver.observe(statsSection);
+  } else {
+    document.querySelectorAll('.stat-number[data-target]').forEach((element) => {
+      element.textContent = `${element.dataset.target || '0'}${element.dataset.suffix || ''}`;
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.15 });
+
+    fadeElements.forEach((element) => revealObserver.observe(element));
+  } else {
+    fadeElements.forEach((element) => element.classList.add('visible'));
+  }
+
+  if ('IntersectionObserver' in window) {
+    const lazyObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        const image = entry.target;
+        image.src = image.dataset.src;
+        image.removeAttribute('data-src');
+        lazyObserver.unobserve(image);
+      });
+    }, { threshold: 0.01, rootMargin: '200px' });
+
+    lazyImages.forEach((image) => lazyObserver.observe(image));
+  }
+});
