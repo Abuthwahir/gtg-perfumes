@@ -3,6 +3,23 @@
    ============================= */
 
 document.addEventListener('DOMContentLoaded', () => {
+  const fragranceGallerySets = {
+    original: [
+      { src: 'assets/OriginalAngle1.png', alt: 'GTG Perfume - Original angle 1' },
+      { src: 'assets/OriginalAngle2.png', alt: 'GTG Perfume - Original angle 2' },
+      { src: 'assets/OriginalAngle3.png', alt: 'GTG Perfume - Original angle 3' },
+    ],
+    lily: [
+      { src: 'assets/LilyAngle1.png', alt: 'GTG Perfume - Lily angle 1' },
+      { src: 'assets/LilyAngle2.png', alt: 'GTG Perfume - Lily angle 2' },
+      { src: 'assets/LilyAngle3.png', alt: 'GTG Perfume - Lily angle 3' },
+    ],
+    rose: [
+      { src: 'assets/RoseAngle1.png', alt: 'GTG Perfume - Rose angle 1' },
+      { src: 'assets/RoseAngle2.png', alt: 'GTG Perfume - Rose angle 2' },
+      { src: 'assets/RoseAngle3.png', alt: 'GTG Perfume - Rose angle 3' },
+    ],
+  };
   const hamburger = document.getElementById('hamburger');
   const mobileNav = document.getElementById('mobileNav');
   const galleryImages = Array.from(document.querySelectorAll('.gallery-main .gallery-img'));
@@ -86,6 +103,37 @@ document.addEventListener('DOMContentLoaded', () => {
     return Number.isNaN(datasetIndex) ? fallbackIndex : datasetIndex;
   }
 
+  function updateGalleryForFragrance(fragrance) {
+    const gallerySet = fragranceGallerySets[fragrance] || fragranceGallerySets.original;
+
+    galleryImages.forEach((image, index) => {
+      const nextImage = gallerySet[index];
+      if (!nextImage) {
+        return;
+      }
+
+      image.src = nextImage.src;
+      image.alt = nextImage.alt;
+    });
+
+    galleryThumbs.forEach((thumb, index) => {
+      const thumbImage = thumb.querySelector('img');
+      const nextImage = gallerySet[index];
+      if (!thumbImage || !nextImage) {
+        return;
+      }
+
+      thumbImage.src = nextImage.src;
+      thumbImage.alt = `${nextImage.alt} thumbnail`;
+      thumb.setAttribute('aria-label', `Show ${fragrance} image ${index + 1}`);
+    });
+
+    currentImageIndex = 0;
+    currentThumbIndex = 0;
+    showImage(0);
+    startAutoSlide();
+  }
+
   function startAutoSlide() {
     if (!galleryImages.length) {
       return;
@@ -138,8 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
   galleryMain?.addEventListener('mouseenter', stopAutoSlide);
   galleryMain?.addEventListener('mouseleave', startAutoSlide);
 
-  showImage(0);
-  startAutoSlide();
+  updateGalleryForFragrance('original');
 
   function getSelectedCard() {
     return document.querySelector('.sub-card.selected') || subCards[0] || null;
@@ -257,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setSelectedCard(parentCard);
       }
 
+      updateGalleryForFragrance(option.dataset.fragrance || 'original');
       updateCartLink();
     });
   });
