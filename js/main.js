@@ -342,18 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
       image.alt = nextImage.alt;
     });
 
-    galleryThumbs.forEach((thumb, index) => {
-      const thumbImage = thumb.querySelector('img');
-      const nextImage = gallerySet[index];
-      if (!thumbImage || !nextImage) {
-        return;
-      }
-
-      thumbImage.src = nextImage.src;
-      thumbImage.alt = `${nextImage.alt} thumbnail`;
-      thumb.setAttribute('aria-label', `Show ${fragrance} image ${index + 1}`);
-    });
-
     currentImageIndex = 0;
     currentThumbIndex = 0;
     showImage(0);
