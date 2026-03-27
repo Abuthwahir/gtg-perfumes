@@ -16,31 +16,31 @@
      ============================= -->
 <header class="header">
   <nav class="nav-inner">
-    <a href="#" class="nav-logo">GTG</a>
+    <a href="#home" class="nav-logo">GTG</a>
 
     <ul class="nav-links">
-      <li><a href="#">Home</a></li>
+      <li><a href="#home">Home</a></li>
       <li>
-        <a href="#" class="shop-link">
+        <a href="#product" class="shop-link">
           Shop
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="4 6 8 10 12 6"/>
           </svg>
         </a>
       </li>
-      <li><a href="#">Fragrances</a></li>
-      <li><a href="#">About Us</a></li>
-      <li><a href="#">Blog</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="#product">Fragrances</a></li>
+      <li><a href="#collection">About Us</a></li>
+      <li><a href="#comparison">Blog</a></li>
+      <li><a href="#contact">Contact</a></li>
     </ul>
 
     <div class="nav-actions">
-      <button class="nav-search-btn" type="button" aria-label="Search">
+      <button class="nav-search-btn" id="navSearchBtn" type="button" aria-label="Open search" aria-expanded="false" aria-controls="searchPanel">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </button>
-      <a href="#" class="btn-shop-now desktop-only">Shop Now</a>
+      <a href="#product" class="btn-shop-now desktop-only">Shop Now</a>
       <button class="hamburger" id="hamburger" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileNav">
         <span></span><span></span><span></span>
       </button>
@@ -50,20 +50,36 @@
 
 <!-- Mobile Nav -->
 <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
-  <a href="#">Home</a>
-  <a href="#">Shop</a>
-  <a href="#">Fragrances</a>
-  <a href="#">About Us</a>
-  <a href="#">Blog</a>
-  <a href="#">Contact</a>
-  <a href="#" class="btn-shop-now">Shop Now</a>
+  <a href="#home">Home</a>
+  <a href="#product">Shop</a>
+  <a href="#product">Fragrances</a>
+  <a href="#collection">About Us</a>
+  <a href="#comparison">Blog</a>
+  <a href="#contact">Contact</a>
+  <a href="#product" class="btn-shop-now">Shop Now</a>
 </nav>
+
+<div class="search-panel" id="searchPanel" aria-hidden="true">
+  <form class="search-panel-form" id="siteSearchForm" role="search">
+    <label class="sr-only" for="siteSearchInput">Search the site</label>
+    <input
+      type="search"
+      class="search-panel-input"
+      id="siteSearchInput"
+      placeholder="Search fragrances, collection, contact..."
+      autocomplete="off"
+    />
+    <button class="search-panel-submit" type="submit">Search</button>
+  </form>
+  <p class="search-panel-hint">Try: Original, Lily, Rose, Collection, Contact</p>
+  <p class="search-panel-status" id="searchPanelStatus" aria-live="polite" hidden></p>
+</div>
 
 
 <!-- =============================
      HERO
      ============================= -->
-<section class="hero">
+<section class="hero" id="home">
   <div class="hero-bg"></div>
   <div class="hero-content">
     <div class="hero-badge">
@@ -378,6 +394,7 @@
 
     <!-- Add to Cart -->
     <a href="#" class="add-to-cart-btn" id="addToCartBtn">Add to Cart</a>
+    <p class="cart-status" id="cartStatus" aria-live="polite" hidden></p>
 
   </div><!-- /product-info -->
 </section>
@@ -386,7 +403,7 @@
 <!-- =============================
      COLLECTION / ACCORDION
      ============================= -->
-<section class="collection-section">
+<section class="collection-section" id="collection">
   <div class="collection-inner">
     <div class="collection-left fade-in-up">
       <h2 class="collection-title">Our Collection</h2>
@@ -482,7 +499,7 @@
 <!-- =============================
      COMPARISON TABLE
      ============================= -->
-<section class="comparison-section">
+<section class="comparison-section" id="comparison">
   <div class="comparison-inner">
     <div class="eyebrow-dash">
       <span></span><span></span><span></span>
@@ -595,20 +612,20 @@
 <!-- =============================
      FOOTER
      ============================= -->
-<footer class="footer">
+<footer class="footer" id="contact">
   <div class="footer-inner">
     <div class="footer-logo">GTG</div>
 
     <div class="footer-col">
-      <a href="#">Home</a>
-      <a href="#">Shop</a>
-      <a href="#">Fragrances</a>
+      <a href="#home">Home</a>
+      <a href="#product">Shop</a>
+      <a href="#product">Fragrances</a>
     </div>
 
     <div class="footer-col">
-      <a href="#">About Us</a>
-      <a href="#">Blog</a>
-      <a href="#">Contact</a>
+      <a href="#collection">About Us</a>
+      <a href="#comparison">Blog</a>
+      <a href="#contact">Contact</a>
     </div>
 
     <div class="footer-social">
@@ -628,15 +645,19 @@
 
     <div class="footer-newsletter">
       <p class="newsletter-headline">Join our newsletter to stay up to date on features and releases.</p>
-      <div class="newsletter-form">
+      <form class="newsletter-form" id="newsletterForm" novalidate>
         <input
           type="email"
           class="newsletter-input"
+          id="newsletterEmail"
           placeholder="Enter your email"
           aria-label="Email address"
+          autocomplete="email"
+          required
         />
-        <button class="newsletter-btn">Subscribe</button>
-      </div>
+        <button class="newsletter-btn" type="submit">Subscribe</button>
+      </form>
+      <p class="newsletter-status" id="newsletterStatus" aria-live="polite" hidden></p>
       <p class="newsletter-legal">
         By subscribing you agree to with our <a href="#">Privacy Policy</a> and provide consent to receive updates from our company.
       </p>

@@ -40,6 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const statsSection = document.querySelector('.stats-section');
   const fadeElements = Array.from(document.querySelectorAll('.fade-in-up'));
   const lazyImages = Array.from(document.querySelectorAll('img[data-src]'));
+  const newsletterForm = document.getElementById('newsletterForm');
+  const newsletterInput = document.getElementById('newsletterEmail');
+  const newsletterStatus = document.getElementById('newsletterStatus');
+  const cartStatus = document.getElementById('cartStatus');
+  const navSearchBtn = document.getElementById('navSearchBtn');
+  const searchPanel = document.getElementById('searchPanel');
+  const siteSearchForm = document.getElementById('siteSearchForm');
+  const siteSearchInput = document.getElementById('siteSearchInput');
+  const searchPanelStatus = document.getElementById('searchPanelStatus');
 
   let currentImageIndex = 0;
   let currentThumbIndex = 0;
@@ -67,6 +76,218 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   setMobileNavState(false);
+
+  function setSearchPanelStatus(type, message) {
+    if (!searchPanelStatus) {
+      return;
+    }
+
+    searchPanelStatus.hidden = false;
+    searchPanelStatus.textContent = message;
+    searchPanelStatus.classList.remove('success', 'error');
+    searchPanelStatus.classList.add(type);
+  }
+
+  function clearSearchPanelStatus() {
+    if (!searchPanelStatus) {
+      return;
+    }
+
+    searchPanelStatus.hidden = true;
+    searchPanelStatus.textContent = '';
+    searchPanelStatus.classList.remove('success', 'error');
+  }
+
+  function setSearchPanelState(isOpen) {
+    if (!navSearchBtn || !searchPanel) {
+      return;
+    }
+
+    searchPanel.classList.toggle('open', isOpen);
+    searchPanel.setAttribute('aria-hidden', String(!isOpen));
+    navSearchBtn.setAttribute('aria-expanded', String(isOpen));
+
+    if (isOpen) {
+      window.setTimeout(() => siteSearchInput?.focus(), 60);
+      return;
+    }
+
+    clearSearchPanelStatus();
+  }
+
+  function highlightSearchTarget(element) {
+    if (!element) {
+      return;
+    }
+
+    element.classList.remove('search-highlight-target');
+
+    window.requestAnimationFrame(() => {
+      element.classList.add('search-highlight-target');
+
+      window.setTimeout(() => {
+        element.classList.remove('search-highlight-target');
+      }, 1800);
+    });
+  }
+
+  function goToSearchTarget(element, afterScroll) {
+    if (!element) {
+      return;
+    }
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    if (typeof afterScroll === 'function') {
+      window.setTimeout(afterScroll, 120);
+    }
+
+    window.setTimeout(() => highlightSearchTarget(element), 240);
+  }
+
+  function runSiteSearch(rawQuery) {
+    const query = rawQuery.trim().toLowerCase();
+
+    if (!query) {
+      setSearchPanelStatus('error', 'Type a fragrance or section name to search.');
+      siteSearchInput?.focus();
+      return;
+    }
+
+    const productSection = document.getElementById('product');
+    const productInfo = document.querySelector('.product-info');
+    const collectionSection = document.querySelector('.collection-inner');
+    const comparisonSection = document.querySelector('.comparison-inner');
+    const footerNewsletter = document.querySelector('.footer-newsletter');
+    const homeContent = document.querySelector('.hero-content');
+    const singleCard = document.querySelector('.sub-card[data-sub="single"]');
+    const doubleCard = document.querySelector('.sub-card[data-sub="double"]');
+
+    const searchTargets = [
+      {
+        label: 'Original fragrance',
+        keywords: ['original'],
+        action: () => {
+          const option = document.querySelector('.sub-card[data-sub="single"] .frag-option[data-fragrance="original"]');
+          singleCard?.click();
+          option?.click();
+          goToSearchTarget(productSection || productInfo, () => option?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+        },
+      },
+      {
+        label: 'Lily fragrance',
+        keywords: ['lily'],
+        action: () => {
+          const option = document.querySelector('.sub-card[data-sub="single"] .frag-option[data-fragrance="lily"]');
+          singleCard?.click();
+          option?.click();
+          goToSearchTarget(productSection || productInfo, () => option?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+        },
+      },
+      {
+        label: 'Rose fragrance',
+        keywords: ['rose'],
+        action: () => {
+          const option = document.querySelector('.sub-card[data-sub="single"] .frag-option[data-fragrance="rose"]');
+          singleCard?.click();
+          option?.click();
+          goToSearchTarget(productSection || productInfo, () => option?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+        },
+      },
+      {
+        label: 'Product section',
+        keywords: ['perfume', 'product', 'fragrance', 'fragrances', 'shop'],
+        action: () => goToSearchTarget(productSection || productInfo),
+      },
+      {
+        label: 'Single subscription',
+        keywords: ['single subscription', 'single'],
+        action: () => {
+          singleCard?.click();
+          goToSearchTarget(singleCard || productSection);
+        },
+      },
+      {
+        label: 'Double subscription',
+        keywords: ['double subscription', 'double'],
+        action: () => {
+          doubleCard?.click();
+          goToSearchTarget(doubleCard || productSection);
+        },
+      },
+      {
+        label: 'Collection section',
+        keywords: ['collection', 'signature', 'scents'],
+        action: () => goToSearchTarget(collectionSection),
+      },
+      {
+        label: 'Comparison table',
+        keywords: ['compare', 'comparison', 'choice', 'gtg'],
+        action: () => goToSearchTarget(comparisonSection),
+      },
+      {
+        label: 'Contact section',
+        keywords: ['contact', 'newsletter', 'subscribe', 'email', 'footer'],
+        action: () => {
+          goToSearchTarget(footerNewsletter, () => newsletterInput?.focus());
+        },
+      },
+      {
+        label: 'Home section',
+        keywords: ['home', 'hero', 'best life'],
+        action: () => goToSearchTarget(homeContent),
+      },
+    ];
+
+    const match = searchTargets.find((target) => {
+      return target.keywords.some((keyword) => query.includes(keyword));
+    });
+
+    if (!match) {
+      setSearchPanelStatus('error', 'No match found. Try Original, Lily, Rose, Collection, or Contact.');
+      return;
+    }
+
+    match.action();
+    setSearchPanelStatus('success', `Showing ${match.label}.`);
+  }
+
+  navSearchBtn?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    setSearchPanelState(!searchPanel?.classList.contains('open'));
+  });
+
+  siteSearchForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runSiteSearch(siteSearchInput?.value || '');
+  });
+
+  siteSearchInput?.addEventListener('input', () => {
+    clearSearchPanelStatus();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!searchPanel?.classList.contains('open')) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Node)) {
+      return;
+    }
+
+    if (searchPanel.contains(target) || navSearchBtn?.contains(target)) {
+      return;
+    }
+
+    setSearchPanelState(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && searchPanel?.classList.contains('open')) {
+      setSearchPanelState(false);
+    }
+  });
 
   function showImage(index) {
     if (!galleryImages.length) {
@@ -264,6 +485,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartButton = document.getElementById('addToCartBtn');
     const cartInfo = document.getElementById('cartInfo');
 
+    if (cartStatus) {
+      cartStatus.hidden = true;
+      cartStatus.textContent = '';
+    }
+
     if (subscription === 'double' && fragrances.length > 1) {
       const [fragranceOne, fragranceTwo] = fragrances;
 
@@ -363,6 +589,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setSelectedCard(getSelectedCard());
   updateCartLink();
+
+  document.getElementById('addToCartBtn')?.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    const subscription = getSelectedSubscription();
+    const fragrances = getSelectedFragrances();
+    const purchase = getSelectedPurchase();
+
+    let message = '';
+
+    if (subscription === 'double' && fragrances.length > 1) {
+      message = `Added to cart: ${formatLabel(subscription)} subscription with ${formatLabel(fragrances[0])} and ${formatLabel(fragrances[1])}.`;
+    } else {
+      const fragrance = fragrances[0] || 'original';
+      message = `Added to cart: ${formatLabel(subscription)} subscription, ${formatLabel(fragrance)}, ${formatLabel(purchase)}.`;
+    }
+
+    if (cartStatus) {
+      cartStatus.hidden = false;
+      cartStatus.textContent = message;
+    }
+
+    window.console.log(message);
+  });
 
   function setAccordionState(openItem) {
     accordionItems.forEach((item) => {
@@ -466,4 +716,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     lazyImages.forEach((image) => lazyObserver.observe(image));
   }
+
+  function setNewsletterStatus(type, message) {
+    if (!newsletterStatus) {
+      return;
+    }
+
+    newsletterStatus.hidden = false;
+    newsletterStatus.textContent = message;
+    newsletterStatus.classList.remove('success', 'error');
+    newsletterStatus.classList.add(type);
+  }
+
+  newsletterForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    if (!newsletterInput) {
+      return;
+    }
+
+    newsletterInput.value = newsletterInput.value.trim();
+
+    if (!newsletterInput.value || !newsletterInput.checkValidity()) {
+      setNewsletterStatus('error', 'Please enter a valid email address.');
+      newsletterInput.focus();
+      return;
+    }
+
+    setNewsletterStatus('success', "Thank you for subscribing. We'll keep you updated.");
+    newsletterForm.reset();
+  });
+
+  newsletterInput?.addEventListener('input', () => {
+    if (!newsletterStatus) {
+      return;
+    }
+
+    newsletterStatus.hidden = true;
+    newsletterStatus.textContent = '';
+    newsletterStatus.classList.remove('success', 'error');
+  });
 });
