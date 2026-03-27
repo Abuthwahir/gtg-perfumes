@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextArrow = document.querySelector('.gallery-arrow.next');
   const subCards = Array.from(document.querySelectorAll('.sub-card'));
   const fragranceOptions = Array.from(document.querySelectorAll('.frag-option'));
-  const purchaseOptions = Array.from(document.querySelectorAll('.purchase-option'));
   const accordionItems = Array.from(document.querySelectorAll('.accordion-item'));
   const statsSection = document.querySelector('.stats-section');
   const fadeElements = Array.from(document.querySelectorAll('.fade-in-up'));
@@ -320,7 +319,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     galleryThumbs.forEach((thumb, thumbIndex) => {
-      thumb.classList.toggle('active', thumbIndex === currentThumbIndex);
+      const isActive = thumbIndex === currentThumbIndex;
+      thumb.classList.toggle('active', isActive);
+      thumb.setAttribute('aria-current', isActive ? 'true' : 'false');
     });
   }
 
@@ -458,10 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function getSelectedPurchase() {
-    return getSelectedCard()?.querySelector('.purchase-option.selected')?.dataset.purchase || 'subscribe';
-  }
-
   function formatLabel(value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
@@ -469,7 +466,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateCartLink() {
     const subscription = getSelectedSubscription();
     const fragrances = getSelectedFragrances();
-    const purchase = getSelectedPurchase();
     const cartButton = document.getElementById('addToCartBtn');
     const cartInfo = document.getElementById('cartInfo');
 
@@ -496,23 +492,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const fragrance = fragrances[0] || 'original';
-    const variant = `${fragrance}-${purchase}`;
+    const variant = `${fragrance}-subscribe`;
 
     if (cartButton) {
       cartButton.href = `#cart-${variant}`;
       cartButton.dataset.subscription = subscription;
       cartButton.dataset.variant = variant;
-      cartButton.title = `Add to cart: ${formatLabel(subscription)} | ${formatLabel(fragrance)} | ${formatLabel(purchase)}`;
+      cartButton.title = `Add to cart: ${formatLabel(subscription)} | ${formatLabel(fragrance)} | Subscribe`;
     }
 
     if (cartInfo) {
-      cartInfo.textContent = `${formatLabel(subscription)} | ${formatLabel(fragrance)} | ${formatLabel(purchase)}`;
+      cartInfo.textContent = `${formatLabel(subscription)} | ${formatLabel(fragrance)} | Subscribe`;
     }
   }
 
   subCards.forEach((card) => {
     card.addEventListener('click', (event) => {
-      if (event.target.closest('.frag-option, .purchase-option')) {
+      if (event.target.closest('.frag-option')) {
         return;
       }
 
@@ -549,32 +545,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  purchaseOptions.forEach((option) => {
-    option.addEventListener('click', (event) => {
-      event.stopPropagation();
-
-      const group = option.closest('.purchase-options');
-      if (!group) {
-        return;
-      }
-
-      group.querySelectorAll('.purchase-option').forEach((item) => item.classList.remove('selected'));
-      option.classList.add('selected');
-
-      const radio = option.querySelector('input[type="radio"]');
-      if (radio) {
-        radio.checked = true;
-      }
-
-      const parentCard = option.closest('.sub-card');
-      if (parentCard) {
-        setSelectedCard(parentCard);
-      }
-
-      updateCartLink();
-    });
-  });
-
   setSelectedCard(getSelectedCard());
   updateCartLink();
 
@@ -583,15 +553,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const subscription = getSelectedSubscription();
     const fragrances = getSelectedFragrances();
-    const purchase = getSelectedPurchase();
-
     let message = '';
 
     if (subscription === 'double' && fragrances.length > 1) {
       message = `Added to cart: ${formatLabel(subscription)} subscription with ${formatLabel(fragrances[0])} and ${formatLabel(fragrances[1])}.`;
     } else {
       const fragrance = fragrances[0] || 'original';
-      message = `Added to cart: ${formatLabel(subscription)} subscription, ${formatLabel(fragrance)}, ${formatLabel(purchase)}.`;
+      message = `Added to cart: ${formatLabel(subscription)} subscription, ${formatLabel(fragrance)}, Subscribe.`;
     }
 
     if (cartStatus) {
